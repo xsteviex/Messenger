@@ -7,50 +7,20 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 module.exports = {
-/*	index: function(req,res){
-		//kinda like inbox
-		var token =  req.token;		
-		Message.find(undefined, function(err, messages){
-			if(err) return res.json({err: err});
-			var myMessages = [];
-			messages.forEach(function(item, index, messages){
-				if(item.to === token.id){
-					myMessages.push(item);
-				}
-			});
-			return res.json(myMessages);
-		});
-	},
-	sent: function(req,res){
-		//kinda like outbox
-		var token =  req.token;
-		Message.find(undefined, function(err, messages){
-			if(err) return res.json({err: err});
-			var myMessages = [];
-			messages.forEach(function(item, index, messages){
-				if(item.from === token.id){
-					myMessages.push(item);
-				}
-			});
-			return res.json(myMessages);
-		})
-	},*/
 	write: function(req,res){
-		var params = {			
+		if (req.body === undefined || req.body.to === undefined || req.body.text === undefined){
+			return res.json(400,"Invalid parameters for request");
+		}
+		if(typeof(req.body.to) === 'string'){
+			req.body.to = [req.body.to];
+		}		
+		var params = {
 			users : req.body.to,
 			token : req.token,
 			text : req.body.text,
 			sent: [],
 			notSent:[]
 		};
-		req.file('media').upload({ maxBytes : 10000000 }, function(err, media){
-			if(err){
-				return res.json({err: err});
-			} if(media.length > 0) {
-				params.media = media[0].fd;
-			}
-			onInitialize(params);
-		});
 		var onInitialize = function(params){
 			User.findOne({id: params.token.id},function(err, author){
 				if(author === undefined){
@@ -80,8 +50,7 @@ module.exports = {
 					from: params.author,
 					text: params.text,
 					media: params.media || ''
-				},function(err, message){
-					
+				},function(err, message){					
 					params.message = message;
 					onMessageCreated(err, params);
 				});
@@ -111,7 +80,19 @@ module.exports = {
 					})
 				}
 			}
-		}
+		};
+		req.file('media').upload({ maxBytes : 10000000 }, function(err, files){
+			if(err){
+				return res.json({err: err});
+			}			 
+			if(files.length > 0) {
+				params.media = files[0].fd;
+				if(!isValidExtension(params.media)){
+					return res.json(400,{err: "Invalid file upload"});
+				}
+			}
+			onInitialize(params);
+		});
 	},
 	read: function(req,res){
 		var token =  req.token;
@@ -160,3 +141,14 @@ module.exports = {
 		});
 	}
 };
+
+function isValidExtension(filename){
+	var extension = filename.substr(filename.lastIndexOf('.') + 1);
+	return (ValidExtension[extension.toLowerCase()] !== undefined);
+}
+
+var ValidExtension = {
+	jpeg:"image/jpeg",
+	jpg:"image/jpeg",
+	gif:"image/gif"
+}

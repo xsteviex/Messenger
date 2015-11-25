@@ -9,16 +9,20 @@
 
 module.exports = {
 	register: function(req,res){
-		var username = req.body.username;
-		var password = req.body.password;
-		if(!username || ! password){
+		if(!req.body || req.body.username || req.body.password){
 			return res.json(401, {err: 'username and password required'});
 		}
+		var username = req.body.username.trim();
+		var password = req.body.password;
+		
 		User.findOne({username: username}, function(err,user){
 			if(user != undefined){
 				return res.json(403, {err: 'username already exists'});				
 			}
-			User.create(req.body).exec(function(err,user){
+			User.create({
+				username: username,
+				password: password
+			}).exec(function(err,user){
 				if(err){
 					return res.json(err.status, {err:err});
 				}
@@ -29,11 +33,11 @@ module.exports = {
 		});
 	},
 	login: function(req,res){
-		var username = req.body.username;
-		var password = req.body.password;
-		if(!username || ! password){
+		if(!req.body || req.body.username || req.body.password){
 			return res.json(401, {err: 'username and password required'});
 		}
+		var username = req.body.username.trim();
+		var password = req.body.password;
 		User.findOne({username: username}, function(err,user){
 			if(err){
 				return res.json(403, {err: 'forbidden'});

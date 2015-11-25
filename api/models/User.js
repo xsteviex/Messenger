@@ -43,7 +43,3 @@ module.exports = {
     });
   }
 };
-
-function Token(){
-  
-}
