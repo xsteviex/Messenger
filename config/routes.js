@@ -42,11 +42,15 @@ module.exports.routes = {
   'post /login' : {
     controller: 'User',
     action: 'login'
-  },
+  },/*
   'get /messages' :{
     controller: 'Message',
     action: 'index'
   },
+    'get /sent':{
+    controller: 'Message',
+    action: 'sent'
+  },*/
   'post /write' :{
     controller: 'Message',
     action: 'write'
@@ -55,9 +59,9 @@ module.exports.routes = {
     controller: 'Message',
     action: 'read'
   },
-  'get /sent':{
+  'get /download/:id':{
     controller: 'Message',
-    action: 'sent'
+    action: 'download'
   }
 
   /***************************************************************************

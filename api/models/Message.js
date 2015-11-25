@@ -7,7 +7,26 @@
 
 module.exports = {
 
-  attributes: {    
+  attributes: {
+    to:{
+      model: 'User'
+    },
+    from:{
+      model: 'User'
+    },
+    text:{
+      type:'string'
+    },
+    media:{
+      type:'string'
+    },
+    toJSON: function(){
+	   var obj = this.toObject();
+     if(obj.media !== ''){
+       obj.media = 'attachment'
+     }
+      return obj;
+    }
   }
 };
 
