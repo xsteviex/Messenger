@@ -9,7 +9,7 @@
 
 module.exports = {
 	register: function(req,res){
-		if(!req.body || req.body.username || req.body.password){
+		if(!req.body || !req.body.username || !req.body.password){
 			return res.json(401, {err: 'username and password required'});
 		}
 		var username = req.body.username.trim();
